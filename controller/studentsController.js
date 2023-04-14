@@ -1,33 +1,23 @@
-const mongoose = require('mongoose');
+const { validationResult } = require("express-validator");
+const mongoose = require("mongoose");
+const HttpError = require("../models/httperror");
+const axio = require("axios");
 
-const stdb = require('../models/models');
-const HttpError = require('../models/httperror');
+const searchStudent = async (req, res, next) => {
+  const name = req.body.name;
 
-const Allocate = stdb.Allocate;
-const RoomModel = stdb.Room;
-const Year = stdb.Year;
+  // Retrieve student data from API endpoint
+  const response = await axio.get("http://localhost:3000/students");
+  //   console.log(response.data);
+  let Students = response.data.students.filter(
+    (student) => student.name === name
+  );
+  //   console.log(Students);
+  if (Students.length === 0) {
+    const error = new HttpError("No students found for the provided name", 404);
+    return res.status(error.code || 500).json({ message: error.message });
+  }
 
-const getStudentsBYRoomId = async (req, res, next) => {
-  const roomId = req.params.rid;
-
-  let students
-    try{
-        students = await Allocate.find({ room : roomId });
-    }catch(err){
-        const error = new HttpError("fetching students failed", 500)
-        // return next(error)
-        return res.status(error.code || 500).json({message: error.message})
-    }
-    console.log(students)
-    
-    if(!students || students.length === 0) {
-        const error = new HttpError("Couldn't find a students for the provided room id", 404)
-        return res.status(error.code || 500).json({message: error.message})
-      
-
-        }
-    res.json({students: students.map(student => student.toObject({getters: true}))  });
- 
-}
-
-exports.getStudentsBYRoomId = getStudentsBYRoomId;
+  res.json({ student: Students });
+};
+exports.searchStudent = searchStudent;

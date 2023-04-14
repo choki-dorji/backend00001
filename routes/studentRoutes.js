@@ -1,15 +1,11 @@
-const express = require('express');
-const {check} = require('express-validator');
-const studentController = require('../controller/studentsController')
+const express = require("express");
+const { check } = require("express-validator");
+const studentController = require("../controller/studentsController");
 
 const router1 = express.Router();
 
+router1.post("/search", studentController.searchStudent);
 
-// router1.get('/', roomController.getRooms)
-
-router1.get('/students/:rid', studentController.getStudentsBYRoomId)
-
-
-
+// router1.get('/userdetail/')
 
 module.exports = router1;
